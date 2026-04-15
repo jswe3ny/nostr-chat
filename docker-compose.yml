@@ -1,0 +1,38 @@
+services:
+  relay-1:
+    image: scsibug/nostr-rs-relay:latest
+    container_name: nostr-relay-1
+    environment:
+      - RUST_LOG=info
+    ports:
+      - "3334:8080" 
+    volumes:
+      - relay1_data:/usr/src/app/db
+    restart: unless-stopped
+
+  relay-2:
+    image: scsibug/nostr-rs-relay:latest
+    container_name: nostr-relay-2
+    environment:
+      - RUST_LOG=info
+    ports:
+      - "3335:8080"
+    volumes:
+      - relay2_data:/usr/src/app/db
+    restart: unless-stopped
+
+  relay-3:
+    image: scsibug/nostr-rs-relay:latest
+    container_name: nostr-relay-3
+    environment:
+      - RUST_LOG=info
+    ports:
+      - "3336:8080"
+    volumes:
+      - relay3_data:/usr/src/app/db
+    restart: unless-stopped
+
+volumes:
+  relay1_data:
+  relay2_data:
+  relay3_data:
