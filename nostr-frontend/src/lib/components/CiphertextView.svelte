@@ -40,15 +40,21 @@
       {/if}
   
       {#each rawEvents as evt (evt.id)}
-        <div class="bg-black p-3 rounded border border-green-900 overflow-x-auto text-xs leading-relaxed break-all shadow-md">
-          <span class="text-gray-500">{"{"}</span><br/>
-          &nbsp;&nbsp;<span class="text-blue-400">"id"</span>: <span class="text-yellow-300">"{evt.id}"</span>,<br/>
-          &nbsp;&nbsp;<span class="text-blue-400">"pubkey"</span>: <span class="text-yellow-300">"{evt.pubkey}"</span>,<br/>
-          &nbsp;&nbsp;<span class="text-blue-400">"created_at"</span>: <span class="text-purple-400">{evt.created_at}</span>,<br/>
-          &nbsp;&nbsp;<span class="text-blue-400">"kind"</span>: <span class="text-purple-400">1059</span>,<br/>
-          &nbsp;&nbsp;<span class="text-blue-400">"content"</span>: <span class="text-green-300">"{evt.content}"</span><br/>
-          <span class="text-gray-500">{"}"}</span>
-        </div>
-      {/each}
+      <div class="bg-black p-3 rounded border border-green-900 overflow-x-auto text-xs leading-relaxed break-all shadow-md">
+        <span class="text-gray-500">{"{"}</span><br/>
+        &nbsp;&nbsp;<span class="text-blue-400">"id"</span>: <span class="text-yellow-300">"{evt.id}"</span>,<br/>
+        &nbsp;&nbsp;<span class="text-blue-400">"pubkey"</span>: <span class="text-yellow-300">"{evt.pubkey}"</span>,<br/>
+        &nbsp;&nbsp;<span class="text-blue-400">"created_at"</span>: <span class="text-purple-400">{evt.created_at}</span>,<br/>
+        &nbsp;&nbsp;<span class="text-blue-400">"kind"</span>: <span class="text-purple-400">1059</span>,<br/>
+        
+        &nbsp;&nbsp;<span class="text-blue-400">"tags"</span>: [<br/>
+        {#each evt.tags as tag}
+          &nbsp;&nbsp;&nbsp;&nbsp;[<span class="text-yellow-300">"{tag[0]}"</span>, <span class="text-yellow-300">"{tag[1]}"</span>]<br/>
+        {/each}
+        &nbsp;&nbsp;],<br/>
+        &nbsp;&nbsp;<span class="text-blue-400">"content"</span>: <span class="text-green-300">"{evt.content}"</span><br/>
+        <span class="text-gray-500">{"}"}</span>
+      </div>
+    {/each}
     </div>
   </div>

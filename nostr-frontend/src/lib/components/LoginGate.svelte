@@ -23,14 +23,13 @@
   <div class="max-w-xl mx-auto mt-16 w-full space-y-12 font-mono flex flex-col items-center">
     
     <div class="text-center bg-white border border-gray-200 p-8 rounded-lg shadow-sm w-full">
-      <div class="text-4xl mb-4">✨</div>
       <h2 class="text-xl font-bold mb-1 text-gray-800">Generate New Keypair</h2>
       <p class="text-sm text-gray-500 mb-6">Create a brand new identity for secure messaging.</p>
       <button 
         onclick={generateNewAccount} 
         class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-full transition-colors text-sm shadow-sm"
       >
-        ✨ Create Fresh Nostr Identity
+        Create Fresh Nostr Identity
       </button>
     </div>
   
@@ -90,7 +89,7 @@
             class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-full transition-colors text-sm {inputNpub.trim() ? '' : 'opacity-50 cursor-not-allowed'}"
             disabled={!inputNpub.trim()}
           >
-            🎧 Observer Mode (Ciphertext Only)
+          Observer Mode (Ciphertext Only)
           </button>
   
           <button 

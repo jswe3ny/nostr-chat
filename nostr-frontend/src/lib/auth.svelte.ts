@@ -1,7 +1,9 @@
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure';
 import * as nip19 from 'nostr-tools/nip19';
 
-// 1. The Global State Machine
+import {db} from '$lib/db';
+
+const storedNip05 = typeof window !== 'undefined' ? localStorage.getItem('myNip05') || "" : "";
 export const authState = $state({
   isAuthenticated: false,
   loginMode: 'none' as 'none' | 'public' | 'private', // THE 3 STATES
@@ -9,9 +11,10 @@ export const authState = $state({
   nsec: '',
   pubKeyHex: '',
   privKeyBytes: null as Uint8Array | null,
+  myNip05: storedNip05
 });
 
-// 2. State 2 Trigger: Public Key Only (Observer Mode)
+// 2. State 2 Trigger: Public Key Only 
 export function loginWithNpub(npub: string) {
   try {
     const decoded = nip19.decode(npub);
@@ -23,7 +26,6 @@ export function loginWithNpub(npub: string) {
     authState.nsec = '';
     authState.isAuthenticated = true;
     
-    // Set the state machine to trigger the CiphertextView component
     authState.loginMode = 'public'; 
   } catch (err) {
     console.error(err);
@@ -31,7 +33,7 @@ export function loginWithNpub(npub: string) {
   }
 }
 
-// 3. State 3 Trigger: Private Key (Full Access Mode)
+// 3. State 3 Trigger: Private Key 
 export function loginWithNsec(nsec: string) {
   try {
     const decoded = nip19.decode(nsec);
@@ -57,12 +59,9 @@ export function loginWithNsec(nsec: string) {
   }
 }
 
-// 4. Generate a brand new identity
 export function generateNewAccount() {
   const privKey = generateSecretKey();
   const nsec = nip19.nsecEncode(privKey);
-  
-  // Instantly log them in with the new key (Sets mode to 'private')
   loginWithNsec(nsec); 
 }
 
@@ -70,16 +69,20 @@ export function generateNewAccount() {
 export function restoreSession() {
   const savedNsec = localStorage.getItem('nostr_nsec');
   if (savedNsec) {
-    // If they have a saved key, bypass the login gate and go straight to State 3
     loginWithNsec(savedNsec);
   }
 }
 
 // 6. State 1 Trigger: Logout & Memory Wipe
-export function logout() {
+export async function logout() {
+  try {
+    // the IndexedDB database from the browser
+    await db.delete(); 
+  } catch (err) {
+    console.error("Failed to wipe local database:", err);
+  }
   authState.isAuthenticated = false;
   
-  // Set the state machine to trigger the LoginGate component
   authState.loginMode = 'none'; 
   
   authState.npub = '';
@@ -88,7 +91,32 @@ export function logout() {
   authState.privKeyBytes = null;
   
   localStorage.removeItem('nostr_nsec');
+  localStorage.removeItem('myNip05');
   
-  // Force SvelteKit to drop whatever dynamic chat page the user was looking at
   window.location.href = '/dashboard';
+}
+
+export function saveMyIdentityClaim(domain: string) {
+    const cleanDomain = domain.trim();
+    
+    // 1. Basic validation
+    if (!cleanDomain) {
+        throw new Error("Domain claim cannot be empty.");
+    }
+    if (!cleanDomain.includes('@')) {
+        throw new Error("Invalid format. Please use the format name@domain.com");
+    }
+
+    // 2. Update RAM/State
+    authState.myNip05 = cleanDomain;
+    
+    // 3. Try to save to hard drive
+    if (typeof window !== 'undefined') {
+        try {
+            localStorage.setItem('myNip05', cleanDomain);
+        } catch (err) {
+            console.error("Storage failure:", err);
+            throw new Error("Failed to save to browser storage. Your browser's privacy settings might be blocking it.");
+        }
+    }
 }

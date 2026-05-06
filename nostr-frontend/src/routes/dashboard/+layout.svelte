@@ -32,9 +32,8 @@
       </div>
   
       <div class="flex gap-4 items-center">
-        <a href="/" class="text-indigo-600 hover:underline text-sm font-bold">← Home</a>
         {#if authState.loginMode !== 'none'}
-          <button onclick={logout} class="text-red-600 hover:underline text-sm font-bold">Logout / Clear Memory</button>
+          <button onclick={logout} class="text-red-600 hover:underline text-sm font-bold">Logout</button>
         {/if}
       </div>
     </nav>
