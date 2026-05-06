@@ -190,7 +190,7 @@ export async function sendEncryptedMessage(recipientNpub: string, text: string, 
         const sealTemplate2 = { kind: 13, content: encryptedRumor2, created_at: now, tags: [] };
         const signedSeal2 = finalizeEvent(sealTemplate2, authState.privKeyBytes);
 
-        // --- THE DOUBLE WRAP ---
+        // --- THE SECOND WRAP ---
 
         // Wrap 1: Addressed to the Recipient
         const ephemeralKey1 = generateSecretKey(); 
@@ -218,7 +218,7 @@ export async function sendEncryptedMessage(recipientNpub: string, text: string, 
         await db.messages.add(newMessage);
         chatState.messages = [...chatState.messages, newMessage];
         
-        // Ignore duplicate message
+        // Ignore duplicate messages
         seenEventIds.add(signedWrap2.id); 
 
         // Publish both wraps to the network simultaneously
@@ -323,4 +323,61 @@ export async function deleteConversation(npub: string) {
     // 4. (Optional) Wipe the contact info so they are completely forgotten
     await db.contacts.delete(npub);
     chatState.contacts = chatState.contacts.filter(c => c.npub !== npub);
+}
+
+
+
+export async function executeFullSync() {
+    if (!authState.pubKeyHex) {
+        console.warn("Cannot sync: No public key found.");
+        return;
+    }
+    
+    console.log("1. Starting Full Sync: Fetching history from local cluster...");
+
+    console.log("1. My Current PubKey:", authState.pubKeyHex);
+const testFilter = { kinds: [1059], '#p': [authState.pubKeyHex] };
+console.log("2. The exact filter sent to relays:", JSON.stringify(testFilter));
+
+    try {
+        const gatheredWraps = new Map<string, any>();
+        // const filter = { kinds: [1059], '#p': [authState.pubKeyHex] };
+        const filter = { kinds: [1059], '#p': [authState.pubKeyHex]} as Filter;
+
+
+        // Phase 1: Fetch and Deduplicate
+        await new Promise((resolve) => {
+            const sub = pool.subscribeMany(relays, filter, {
+                onevent(wrapEvent) {
+                    if (!gatheredWraps.has(wrapEvent.id)) {
+                        gatheredWraps.set(wrapEvent.id, wrapEvent);
+                    }
+                },
+                oneose() {
+                    console.log("2. EOSE received from relays.");
+                    sub.close();
+                    resolve(true); 
+                }
+            });
+
+            setTimeout(() => {
+                console.warn("2. Timeout reached before all EOSE signals.");
+                sub.close();
+                resolve(true);
+            }, 80000);
+        });
+
+        const allWraps = Array.from(gatheredWraps.values());
+        console.log(`3. Gathered ${allWraps.length} unique encrypted events. Healing cluster...`);
+
+        // Phase 2: Broadcast
+        for (const wrap of allWraps) {
+            await Promise.any(pool.publish(relays, wrap));
+        }
+
+        console.log("4. Full Sync Complete: Local cluster is synchronized.");
+
+    } catch (error) {
+        console.error("Full Sync failed:", error);
+    }
 }

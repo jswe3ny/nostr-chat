@@ -1,9 +1,10 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { chatState, initializeChat, saveContactAlias, getDisplayName,deleteConversation} from '$lib/chat.svelte';
+  import { chatState, initializeChat, saveContactAlias, getDisplayName,deleteConversation, executeFullSync} from '$lib/chat.svelte';
   import * as nip19 from 'nostr-tools/nip19';
   import { normalizeToHexKey } from '$lib/identityVerifier';
+  
 
   import VerifySection from '$lib/components/verifySection.svelte';
 
@@ -105,6 +106,12 @@
     </label>
     </div>
     <div class="flex flex-col">
+      <button 
+      onclick={executeFullSync}
+      class="px-4 py-2 bg-gray-800 text-white font-bold rounded-md hover:bg-gray-900 transition-colors"
+    >
+      Sync Network
+    </button>
       <VerifySection />
     </div>
     
