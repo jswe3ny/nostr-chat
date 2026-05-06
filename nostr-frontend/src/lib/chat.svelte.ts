@@ -19,7 +19,8 @@ export const chatState = $state({
     contacts: [] as Contact[], 
     status: 'Disconnected',
     isListening: false,
-    isDbLoaded: false
+    isDbLoaded: false,
+    relayStatus: {} as Record<string, boolean>
 });
 
 export type Contact = { 
@@ -67,7 +68,21 @@ export function listenForIncoming(since: number) {
 
     chatState.isListening = true;
     chatState.status = 'Synced & Listening';
+ 
     
+    relays.forEach(url => {
+        pool.ensureRelay(url).then(relay => {
+            chatState.relayStatus[url] = true; // Mark Green
+            
+            // If it drops, mark Red
+            relay.onclose = () => { chatState.relayStatus[url] = false; };
+            // relay.onerror = () => { chatState.relayStatus[url] = false; };
+        }).catch(() => {
+            chatState.relayStatus[url] = false; // Mark Red on failure
+        });
+    });
+
+
     const filter = { kinds: [1059], '#p': [authState.pubKeyHex], limit: 100 } as Filter;
     if (since > 0) filter.since = since + 1; 
 

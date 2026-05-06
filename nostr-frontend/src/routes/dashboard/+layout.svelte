@@ -21,9 +21,20 @@
         <h1 class="text-2xl font-bold text-gray-900">Secure Dashboard</h1>
         
         {#if authState.loginMode === 'private'}
-          <span class="text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full {chatState.status.includes('Synced') ? 'bg-green-500' : 'bg-yellow-500'}"></span> {chatState.status}
-          </span>
+        {#if authState.loginMode === 'private'}
+        <div class="flex items-center gap-2">
+          {#each Object.entries(chatState.relayStatus) as [url, isConnected]}
+            <span 
+              class="text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1.5 transition-colors
+              {isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}"
+              title={url}
+            >
+              <span class="w-1.5 h-1.5 rounded-full {isConnected ? 'bg-green-500' : 'bg-red-500'}"></span>
+              {url.split(':').pop()}
+            </span>
+          {/each}
+        </div>
+      {/if}
         {:else if authState.loginMode === 'public'}
           <span class="text-xs font-bold px-2 py-1 bg-red-100 text-red-700 rounded-full flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Raw Stream

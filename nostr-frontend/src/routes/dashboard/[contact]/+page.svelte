@@ -5,7 +5,8 @@
     
 let isVerifying = $state(false);
 let verificationError = $state(""); // New state to catch errors
-
+// Evaluates to true ONLY if every relay is currently disconnected
+let isNetworkDead = $derived(Object.values(chatState.relayStatus).every(status => status === false));
 async function handleVerifyClick() {
   if (!activeContact?.claimedDomain) {
     alert("This user hasn't claimed a domain to verify.");
@@ -17,7 +18,6 @@ async function handleVerifyClick() {
   verificationError = "";
 
   try {
-    // await executeManualVerification(activeNpub, activeContact.claimedDomain);
     const delay = new Promise(resolve => setTimeout(resolve, 1000));
 
     await Promise.all([
@@ -179,21 +179,27 @@ async function handleVerifyClick() {
     <div class="bg-white p-2 md:p-3 border-t border-gray-200">
       <div class="flex gap-2 items-end">
         <textarea 
-          bind:value={messageText} 
-          onkeydown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-              }
-          }}
-          placeholder="Type an encrypted message..." 
-          class="flex-grow px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs md:text-sm resize-none overflow-hidden max-h-32 min-h-[40px] md:min-h-[44px]"
-          rows="1"
-        ></textarea>
-        <button onclick={handleSend} class="px-4 py-2 md:px-6 md:py-3 bg-gray-800 hover:bg-gray-900 text-white text-sm md:text-base font-bold rounded-xl transition-colors h-[40px] md:h-[44px]">Send</button>
-      </div>
-      <div class="text-center mt-1 md:mt-2">
-         <span class="text-[9px] md:text-[10px] text-gray-400">End-to-end encrypted • Press Enter to send</span>
+  bind:value={messageText} 
+  disabled={isNetworkDead}
+  onkeydown={(e) => {
+    // Extra safety: prevent Enter key from firing if network is dead
+    if (e.key === 'Enter' && !e.shiftKey && !isNetworkDead) {
+      e.preventDefault();
+      handleSend();
+    }
+  }}
+  placeholder={isNetworkDead ? "Waiting for network connection..." : "Type an encrypted message..."} 
+  class="flex-grow px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs md:text-sm resize-none overflow-hidden max-h-32 min-h-[40px] md:min-h-[44px] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+  rows="1"
+></textarea>
+
+<button 
+  onclick={handleSend} 
+  disabled={isNetworkDead}
+  class="px-4 py-2 md:px-6 md:py-3 bg-gray-800 hover:bg-gray-900 text-white text-sm md:text-base font-bold rounded-xl transition-colors h-[40px] md:h-[44px] disabled:bg-gray-400 disabled:cursor-not-allowed"
+>
+  Send
+</button>
       </div>
     </div>
   </div>
