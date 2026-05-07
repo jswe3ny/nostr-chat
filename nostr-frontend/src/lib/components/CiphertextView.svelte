@@ -7,7 +7,7 @@
   
     $effect(() => {
       const pool = new SimplePool();
-      const relays = ['ws://localhost:3334', 'ws://localhost:3335', 'ws://localhost:3336'];
+      const relays = ['wss://relay1.jacksweeny.com', 'wss://relay2.jacksweeny.com', 'wss://relay3.jacksweeny.com'];
       status = 'Listening for encrypted NIP-1059 payloads...';
   
       const sub = pool.subscribeMany(
