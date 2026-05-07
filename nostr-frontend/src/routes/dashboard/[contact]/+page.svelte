@@ -159,7 +159,6 @@ async function handleVerifyClick() {
     <div bind:this={chatContainer} class="flex flex-col flex-grow p-3 md:p-4 overflow-y-auto space-y-4 scroll-smooth">
       {#if activeMessages.length === 0}
         <div class="flex flex-col items-center justify-center h-full text-gray-400 text-sm italic px-4 text-center">
-          <span class="text-3xl mb-2 opacity-50">📭</span>
           No history found. Send a message to open the secure channel.
         </div>
       {/if}

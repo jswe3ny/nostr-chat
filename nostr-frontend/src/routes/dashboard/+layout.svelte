@@ -19,10 +19,10 @@
     <nav class="flex justify-between items-center pb-4 border-b border-gray-300">
       <div class="flex items-center gap-4">
         <h1 class="text-2xl font-bold text-gray-900">Secure Dashboard</h1>
-        
+        <a href="/dashboard"> dashboard</a>
         {#if authState.loginMode === 'private'}
         {#if authState.loginMode === 'private'}
-        <div class="flex items-center gap-2">
+        <div class="flex flex-col md:flex-row items-center gap-2">
           {#each Object.entries(chatState.relayStatus) as [url, isConnected]}
             <span 
               class="text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1.5 transition-colors

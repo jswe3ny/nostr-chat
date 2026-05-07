@@ -27,7 +27,7 @@ export type Contact = {
     npub: string; 
     username: string; 
     claimedDomain?: string; 
-    isVerified: boolean; 
+    isVerified?: boolean; 
     lastVerified?: number;
 };
 
@@ -161,6 +161,7 @@ export async function sendEncryptedMessage(recipientNpub: string, text: string, 
     const recipientHex = decoded.data as string;
     const now = Math.floor(Date.now() / 1000);
 
+    const randomPastTime = now - Math.floor(Math.random() * 172800);
 
     try {
         // 1. Create the Shared Inner Rumor
@@ -196,14 +197,14 @@ export async function sendEncryptedMessage(recipientNpub: string, text: string, 
         const ephemeralKey1 = generateSecretKey(); 
         const wrapConvKey1 = nip44.getConversationKey(ephemeralKey1, recipientHex);
         const encryptedSeal1 = nip44.encrypt(JSON.stringify(signedSeal1), wrapConvKey1);
-        const wrapTemplate1 = { kind: 1059, content: encryptedSeal1, created_at: now, tags: [['p', recipientHex]] };
+        const wrapTemplate1 = { kind: 1059, content: encryptedSeal1, created_at: randomPastTime, tags: [['p', recipientHex]] };
         const signedWrap1 = finalizeEvent(wrapTemplate1, ephemeralKey1);
 
         // Wrap 2: Addressed to YOURSELF
         const ephemeralKey2 = generateSecretKey(); 
         const wrapConvKey2 = nip44.getConversationKey(ephemeralKey2, authState.pubKeyHex);
         const encryptedSeal2 = nip44.encrypt(JSON.stringify(signedSeal2), wrapConvKey2);
-        const wrapTemplate2 = { kind: 1059, content: encryptedSeal2, created_at: now, tags: [['p', authState.pubKeyHex]] };
+        const wrapTemplate2 = { kind: 1059, content: encryptedSeal2, created_at: randomPastTime, tags: [['p', authState.pubKeyHex]] };
         const signedWrap2 = finalizeEvent(wrapTemplate2, ephemeralKey2);
 
         // --- NEW: SAVE USING THE REAL CRYPTO ID ---
@@ -278,7 +279,6 @@ export async function executeManualVerification(npub: string, claimedDomain: str
     const decoded = nip19.decode(npub);
     const targetHex = decoded.data as string;
 
-    // If this fails, it instantly stops and throws the error to the UI
     const verifiedHex = await resolveNip05(claimedDomain);
 
     if (verifiedHex === targetHex) {
@@ -286,7 +286,7 @@ export async function executeManualVerification(npub: string, claimedDomain: str
             npub,
             username: claimedDomain, 
             claimedDomain,
-            isVerified: true,
+            // isVerified: true,
             lastVerified: Date.now()
         };
         
@@ -302,9 +302,7 @@ export async function executeManualVerification(npub: string, claimedDomain: str
         await db.contacts.put(existing);
         chatState.contacts = await db.contacts.toArray();
     }
-
-    // Throw the final imposter error to the UI (No console.warn!)
-    throw new Error("Security Alert: The public key registered on that domain does NOT match this user's public key.");
+    throw new Error("Public key registered on that domain does NOT match this user's public key.");
 }
 
 export async function deleteConversation(npub: string) {

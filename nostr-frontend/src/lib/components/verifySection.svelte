@@ -58,6 +58,7 @@
   >
     <div class="overflow-hidden pr-2">
       <span class="block text-xs font-bold text-gray-700 uppercase">My Identity</span>
+
       
       {#if authState.myNip05}
         <div class="flex items-center gap-2 mt-1">
@@ -85,7 +86,7 @@
         <input 
           type="text" 
           bind:value={domainInput} 
-          placeholder="e.g. jack@developwithjack.com" 
+          placeholder="e.g. jack@domain.com" 
           class="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono" 
         />
         
@@ -101,6 +102,8 @@
             <span class="text-green-600 text-xs font-bold">✓ Saved</span>
           {/if}
         </div>
+        <span class="block text-xs font-bold text-gray-700 uppercase truncate">Pub Key: {authState.npub}</span>
+
       </div>
 
     </div>
