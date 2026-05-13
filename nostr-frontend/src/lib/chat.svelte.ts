@@ -197,17 +197,20 @@ export async function sendEncryptedMessage(recipientNpub: string, text: string, 
         const ephemeralKey1 = generateSecretKey(); 
         const wrapConvKey1 = nip44.getConversationKey(ephemeralKey1, recipientHex);
         const encryptedSeal1 = nip44.encrypt(JSON.stringify(signedSeal1), wrapConvKey1);
-        const wrapTemplate1 = { kind: 1059, content: encryptedSeal1, created_at: randomPastTime, tags: [['p', recipientHex]] };
+        const wrapTemplate1 = { 
+            kind: 1059, 
+            content: encryptedSeal1, 
+            created_at: randomPastTime, 
+            tags: [['p', recipientHex]] };
         const signedWrap1 = finalizeEvent(wrapTemplate1, ephemeralKey1);
 
-        // Wrap 2: Addressed to YOURSELF
+        // Wrap 2: Addressed to sender
         const ephemeralKey2 = generateSecretKey(); 
         const wrapConvKey2 = nip44.getConversationKey(ephemeralKey2, authState.pubKeyHex);
         const encryptedSeal2 = nip44.encrypt(JSON.stringify(signedSeal2), wrapConvKey2);
         const wrapTemplate2 = { kind: 1059, content: encryptedSeal2, created_at: randomPastTime, tags: [['p', authState.pubKeyHex]] };
         const signedWrap2 = finalizeEvent(wrapTemplate2, ephemeralKey2);
 
-        // --- NEW: SAVE USING THE REAL CRYPTO ID ---
         const newMessage: Message = {
             id: signedWrap2.id, 
             conversationId: recipientNpub,
@@ -286,7 +289,6 @@ export async function executeManualVerification(npub: string, claimedDomain: str
             npub,
             username: claimedDomain, 
             claimedDomain,
-            // isVerified: true,
             lastVerified: Date.now()
         };
         

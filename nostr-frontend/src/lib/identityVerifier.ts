@@ -15,10 +15,6 @@ export async function resolveNip05(identifier: string): Promise<string> {
         throw new Error(`Network Error: Could not reach ${domain}. The server might be down or blocking CORS.`);
     }
     
-    if (!response.ok) {
-        throw new Error(`Server Error: ${domain} refused the request (Status: ${response.status}).`);
-    }
-    
     const data = await response.json();
     const hexPubKey = data.names?.[name];
     

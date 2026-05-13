@@ -20,7 +20,6 @@
         }
       );
   
-      // CLEANUP: Destroys connection when user leaves this view
       return () => {
         sub.close();
         pool.close(relays);

@@ -48,10 +48,8 @@ export function loginWithNsec(nsec: string) {
     authState.npub = nip19.npubEncode(pubKey);
     authState.isAuthenticated = true;
     
-    // Set the state machine to trigger the DecryptedApp component
     authState.loginMode = 'private'; 
     
-    // Persist session to hard drive
     localStorage.setItem('nostr_nsec', nsec);
   } catch (err) {
     console.error(err);
@@ -99,7 +97,7 @@ export async function logout() {
 export function saveMyIdentityClaim(domain: string) {
     const cleanDomain = domain.trim();
     
-    // 1. Basic validation
+    //Basic validation
     if (!cleanDomain) {
         throw new Error("Domain claim cannot be empty.");
     }
@@ -107,10 +105,8 @@ export function saveMyIdentityClaim(domain: string) {
         throw new Error("Invalid format. Please use the format name@domain.com");
     }
 
-    // 2. Update RAM/State
     authState.myNip05 = cleanDomain;
     
-    // 3. Try to save to hard drive
     if (typeof window !== 'undefined') {
         try {
             localStorage.setItem('myNip05', cleanDomain);

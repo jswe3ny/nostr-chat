@@ -1,5 +1,4 @@
 <script lang="ts">
-    // In SvelteKit, standard anchor tags (<a>) handle client-side routing automatically.
   </script>
   
   <div class="font-mono min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 text-gray-800">
